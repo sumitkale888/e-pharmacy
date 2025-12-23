@@ -1,41 +1,36 @@
 package com.example.backend.controller;
 
+import com.example.backend.dto.AuthRequest;
+import com.example.backend.dto.AuthResponse;
 import com.example.backend.model.User;
-import com.example.backend.repository.UserRepository;
+import com.example.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-@CrossOrigin(origins = "http://localhost:5173")
 public class AuthController {
 
     @Autowired
-    private UserRepository userRepository;
+    private AuthService service;
 
     @PostMapping("/register")
-    public String registerUser(@RequestBody User user) {
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return "Username already exists!";
+    public ResponseEntity<?> registerUser(@RequestBody User user) {
+        try {
+            service.register(user);
+            return ResponseEntity.ok("User registered successfully"); // Returns 200 OK
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error: " + e.getMessage());
         }
-
-        // AGAR ROLE KHALI HAI TO 'USER' SET KARO (Default)
-        if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("USER");
-        }
-        // Agar frontend se "ADMIN" bheja gaya hai, toh wo waisa hi rahega
-
-        userRepository.save(user);
-        return "User registered successfully!";
     }
 
     @PostMapping("/login")
-    public User loginUser(@RequestBody User loginDetails) {
-        User user = userRepository.findByUsername(loginDetails.getUsername()).orElse(null);
-        
-        if (user != null && user.getPassword().equals(loginDetails.getPassword())) {
-            return user;
+    public ResponseEntity<?> loginUser(@RequestBody AuthRequest authRequest) {
+        try {
+            return ResponseEntity.ok(service.login(authRequest));
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Invalid credentials");
         }
-        return null;
     }
 }

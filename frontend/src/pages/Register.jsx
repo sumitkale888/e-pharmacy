@@ -6,31 +6,33 @@ import { UserPlus, Lock, User, Shield } from 'lucide-react';
 const Register = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState('USER'); // Default Role 'USER'
+    const [role, setRole] = useState('USER');
     const navigate = useNavigate();
 
     const handleRegister = async (e) => {
         e.preventDefault();
         try {
-            // Role bhi backend bhejo
             const res = await api.post('/auth/register', { 
                 username, 
                 password, 
                 role 
             });
             
-            if (res.data === "User registered successfully!") {
+            // Check status code 200 (OK) or 201 (Created)
+            if (res.status === 200 || res.status === 201) {
                 alert("Registration Successful! Please Login.");
                 navigate('/login');
-            } else {
-                alert(res.data);
             }
         } catch (err) {
             console.error(err);
-            alert("Registration Failed");
+            // Handle error response from backend
+            if (err.response && err.response.data) {
+                alert("Registration Failed: " + err.response.data);
+            } else {
+                alert("Registration Failed. Server might be down.");
+            }
         }
     };
-
     return (
         <div className="flex justify-center items-center h-[80vh] bg-gray-50">
             <div className="bg-white p-8 rounded-lg shadow-xl w-96 border border-gray-200">

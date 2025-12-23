@@ -27,10 +27,12 @@ const Navbar = () => {
         };
     }, []);
 
-    const handleLogout = () => {
+   const handleLogout = () => {
+        localStorage.removeItem('token'); // Token Delete
         localStorage.removeItem('userRole');
         localStorage.removeItem('userId');
-        setRole(null); // Immediate UI update
+        
+        setRole(null);
         window.dispatchEvent(new Event("storage"));
         navigate('/');
     };

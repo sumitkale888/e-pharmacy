@@ -8,38 +8,41 @@ const Login = () => {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        try {
-            const res = await api.post('/auth/login', { 
-                username: username, 
-                password: password 
-            });
+   // ... imports ...
 
-            if (res.data && res.data.id) {
-                // 1. Store Data
-                localStorage.setItem('userRole', res.data.role); 
-                localStorage.setItem('userId', res.data.id);
-                
-                // 2. Alert & Navbar Update
-                alert("Login Successful!");
-                window.dispatchEvent(new Event("storage"));
-                
-                // 3. CRITICAL: Redirect Based on Role
-                if (res.data.role === 'ADMIN') {
-                    navigate('/admin/dashboard'); // Admin -> Dashboard
-                } else {
-                    navigate('/'); // User -> Home (Shop)
-                }
+const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+        const res = await api.post('/auth/login', { 
+            username: username, 
+            password: password 
+        });
 
+        if (res.data && res.data.token) {
+            localStorage.setItem('token', res.data.token);
+            localStorage.setItem('userRole', res.data.role); 
+            localStorage.setItem('userId', res.data.id);
+            
+            // Dispatch event so Navbar updates immediately
+            window.dispatchEvent(new Event("storage"));
+            
+            alert("Login Successful!");
+            
+            if (res.data.role === 'ADMIN') {
+                navigate('/admin/dashboard');
             } else {
-                alert("Invalid Username or Password!");
+                navigate('/');
             }
-        } catch (err) {
-            console.error("Login Error:", err);
-            alert("Login Failed. Please check backend connection.");
+        } else {
+            alert("Login Failed: No token received.");
         }
-    };
+    } catch (err) {
+        console.error("Login Error:", err);
+        alert("Invalid Username or Password!");
+    }
+};
+
+// ... return() JSX remains the same ...
 
     return (
         <div className="flex justify-center items-center h-[70vh] bg-gray-50 mt-20">

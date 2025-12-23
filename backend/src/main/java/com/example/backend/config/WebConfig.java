@@ -9,7 +9,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        // "file:///" is required for Windows absolute paths
+        // Frontend 'http://localhost:8080/uploads/...' mangega
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:///C:/pharmacy-uploads/medicines/");
     }
